@@ -1,0 +1,6 @@
+2026-08-19 06:08:59 | WARNING  | adpulse.transform | Dropped 1 rows with missing campaign_id or unparseable date
+2026-08-19 06:08:59 | INFO     | adpulse.transform | Removed 1 duplicate rows on natural key
+2026-08-19 06:08:59 | WARNING  | adpulse.transform | Dropped 1 rows with missing campaign_id or unparseable date
+2026-08-19 06:08:59 | INFO     | adpulse.transform | Removed 1 duplicate rows on natural key
+2026-08-19 06:08:59 | WARNING  | adpulse.transform | Dropped 1 rows with missing campaign_id or unparseable date
+2026-08-19 06:08:59 | INFO     | adpulse.transform | Removed 1 duplicate rows on natural key

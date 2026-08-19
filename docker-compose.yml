@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: adpulse_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-adpulse}
+      POSTGRES_USER: ${POSTGRES_USER:-adpulse}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-adpulse}
+    ports:
+      - "5432:5432"
+    volumes:
+      - adpulse_pgdata:/var/lib/postgresql/data
+      # Files here run once, in filename order, on first container init
+      - ./sql/staging_schema.sql:/docker-entrypoint-initdb.d/01_staging_schema.sql
+      - ./sql/warehouse_schema.sql:/docker-entrypoint-initdb.d/02_warehouse_schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-adpulse} -d ${POSTGRES_DB:-adpulse}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: adpulse_pipeline
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-adpulse}
+      POSTGRES_USER: ${POSTGRES_USER:-adpulse}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-adpulse}
+      USE_S3: ${USE_S3:-false}
+      S3_BUCKET: ${S3_BUCKET:-}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    command: ["python", "-m", "src.run_pipeline"]
+
+volumes:
+  adpulse_pgdata:
